@@ -1,0 +1,130 @@
+{
+  "release": {
+    "name": "RadTools",
+    "version": "v1.0.0",
+    "codename": "Crimson",
+    "platform": "linux-x86_64"
+  },
+  "defaults": {
+    "install_root": "/opt/radtools",
+    "bindir": "/usr/bin",
+    "systemd_dir": "/etc/systemd/system"
+  },
+  "components": [
+    {
+      "id": "radbuild-tools",
+      "name": "RadBuild Tools",
+      "version": "v1.0.0",
+      "platforms": [
+        "linux-x86_64"
+      ],
+      "required": true,
+      "payload": "radbuild-server/v1.0.0/payload",
+      "docs": "radbuild-server/v1.0.0/docs",
+      "template_dir": "radbuild-server/v1.0.0/templates",
+      "root_subdir": "RadBuild",
+      "commands": [
+        "radbuild",
+        "build_vivado",
+        "build_petalinux",
+        "radsetup"
+      ]
+    },
+    {
+      "id": "radbuild-client",
+      "name": "RadBuild Client",
+      "version": "v1.0.0",
+      "platforms": [
+        "linux-x86_64"
+      ],
+      "requires": [
+        "radbuild-tools"
+      ],
+      "default": false,
+      "payload": "radbuild-server/v1.0.0/payload",
+      "template_dir": "radbuild-server/v1.0.0/templates",
+      "root_subdir": "RadBuild",
+      "commands": [
+        "radclient"
+      ]
+    },
+    {
+      "id": "radbuild-server",
+      "name": "RadBuild Server and Workers",
+      "version": "v1.0.0",
+      "platforms": [
+        "linux-x86_64"
+      ],
+      "requires": [
+        "radbuild-tools"
+      ],
+      "default": false,
+      "payload": "radbuild-server/v1.0.0/payload",
+      "template_dir": "radbuild-server/v1.0.0/templates",
+      "root_subdir": "RadBuild",
+      "commands": [
+        "radserver",
+        "raddb",
+        "radbuildserver",
+        "radworker",
+        "radcodex_worker",
+        "radllm"
+      ],
+      "runtime_dirs": [
+        "radserver_data/uploaded_logs"
+      ],
+      "config_templates": [
+        {
+          "src": "server_config.json",
+          "dst": "radserver_data/server_config.json",
+          "mode": "0600"
+        },
+        {
+          "src": "radbuildserver.json",
+          "dst": "radserver_data/radbuildserver.json",
+          "mode": "0644"
+        }
+      ]
+    },
+    {
+      "id": "radbuild-service",
+      "name": "RadBuild Server systemd Service",
+      "version": "v1.0.0",
+      "platforms": [
+        "linux-x86_64"
+      ],
+      "requires": [
+        "radbuild-server"
+      ],
+      "default": false,
+      "service": {
+        "template": "radbuild-server/v1.0.0/templates/radbuild-server.service",
+        "name": "radbuild-server",
+        "host": "0.0.0.0",
+        "port": "8767"
+      }
+    },
+    {
+      "id": "radfpga-debug-hub",
+      "name": "RadFPGA Debug Hub",
+      "version": "v0.1.0",
+      "platforms": [
+        "linux-x86_64"
+      ],
+      "default": false,
+      "payload": "radfpga-debug-hub/v0.1.0/payload",
+      "root_subdir": "RadFPGA-Debug-Hub",
+      "commands": [
+        "radfpga_debug_hub",
+        "radfpga_debug_hubd"
+      ],
+      "dependencies": {
+        "ubuntu": [
+          "libqt5widgets5",
+          "libqt5network5",
+          "libqt5serialport5"
+        ]
+      }
+    }
+  ]
+}

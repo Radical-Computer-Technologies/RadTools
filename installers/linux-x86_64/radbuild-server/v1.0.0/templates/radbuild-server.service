@@ -1,0 +1,17 @@
+[Unit]
+Description=RadBuild Server __RADBUILD_VERSION__
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+__SERVICE_USER_LINE__
+WorkingDirectory=__RADBUILD_PREFIX__
+Environment=RADSERVER_HOME=__RADBUILD_PREFIX__/radserver_data
+Environment=RADBUILD_ROOT=__RADBUILD_ROOT__
+ExecStart=__RADBUILD_PREFIX__/bin/radserver serve --host __RADBUILD_HOST__ --port __RADBUILD_PORT__
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

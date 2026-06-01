@@ -1,0 +1,44 @@
+# Python/editor cache
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.vscode/
+.idea/
+.DS_Store
+
+# Generated release archives. The installer payload directories are tracked;
+# these large archives are regenerated from those payloads for distribution.
+*.tar.gz
+*.tgz
+*.zip
+
+# Installer/runtime scratch output
+.build/
+dist/
+build/
+*.log
+*.jou
+
+# Vivado/PetaLinux generated output
+*.Xil/
+*.runs/
+*.cache/
+*.hw/
+*.ip_user_files/
+*.sim/
+*.sdk/
+*.str
+*.wdb
+*.xpr
+*.xsa
+
+# Local RadBuild/RadTools runtime metadata
+.radmeta/
+.userconfig/
+radserver_data/
+
+# Guard against terminal escape/control-character output accidentally creating
+# bogus one-character directories during interactive installer tests.
+installers/linux-x86_64/[!A-Za-z0-9_.-]*/

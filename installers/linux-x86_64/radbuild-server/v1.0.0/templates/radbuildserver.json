@@ -1,0 +1,16 @@
+{
+  "auto_radsetup": true,
+  "notifications": {
+    "discord_webhook_url": "",
+    "heartbeat_interval_seconds": 300,
+    "slack_webhook_url": ""
+  },
+  "poll_interval_seconds": 60,
+  "projects": [],
+  "radbuild_dir": "<radbuild-install-prefix>",
+  "review_db_cli": "<radbuild-install-prefix>/bin/raddb",
+  "schema": "radbuildserver-v1",
+  "state_file": "<radbuild-install-prefix>/radserver_data/radbuildserver.state.json",
+  "use_radbuild_shell": true,
+  "workspace_dir": "<radbuild-workspace>"
+}

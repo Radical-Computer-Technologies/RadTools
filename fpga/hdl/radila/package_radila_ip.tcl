@@ -18,6 +18,8 @@ if {![info exists radila_ip_repo_dir]} {
 
 set project_dir [file join $script_dir .vivado_ip_packager]
 set ip_root_dir [file join $radila_ip_repo_dir radila_1.0]
+set bd_tcl_file [file join $script_dir bd bd.tcl]
+set automation_tcl_file [file join $script_dir rad_debug_hub_bd.tcl]
 
 proc find_bus_interface_ci {core wanted_name} {
     foreach bus_if [ipx::get_bus_interfaces -of_objects $core] {
@@ -62,6 +64,17 @@ set_property description {HDL-only AXI-Lite capture buffer with event trigger an
 set_property version 1.0 $core
 set_property vendor_display_name {RCT} $core
 set_property supported_families {zynquplus Production zynq Production} $core
+
+if {[file exists $bd_tcl_file]} {
+    file mkdir [file join $ip_root_dir bd]
+    file copy -force $bd_tcl_file [file join $ip_root_dir bd bd.tcl]
+    set bd_file_group [ipx::get_file_groups xilinx_blockdiagram -of_objects $core]
+    if {$bd_file_group eq ""} {
+        set bd_file_group [ipx::add_file_group -type xilinx_blockdiagram "" $core]
+    }
+    set bd_file [ipx::add_file [file join $ip_root_dir bd bd.tcl] $bd_file_group]
+    set_property type tclSource $bd_file
+}
 
 ipx::infer_bus_interface s00_axi_aclk xilinx.com:signal:clock_rtl:1.0 $core
 ipx::infer_bus_interface s00_axi_aresetn xilinx.com:signal:reset_rtl:1.0 $core
@@ -120,8 +133,29 @@ foreach port_name {sample_i event_i irq_o} {
     }
 }
 
+foreach {param_name display_name description} {
+    SAMPLE_WIDTH {Sample Width} {Total captured sample bus width in bits}
+    EVENT_WIDTH {Event Width} {Total trigger/event bus width in bits}
+    DEPTH {Capture Depth} {Number of samples stored in the RadILA dual-port capture RAM}
+    ADDR_WIDTH {Capture Address Width} {Address width for the RadILA capture RAM}
+    CMD_LANES {Command Link Width} {Narrow command link width between RadDebugHub and RadILA}
+    VENDOR_TAG {Vendor Tag} {Vendor selector used by generate blocks for vendor-specific primitives}
+    PRODUCT_SERIES_TAG {Product Series Tag} {Device-family selector used by generate blocks for primitive choices}
+    G_DEBUG_BUS {Debug Bus} {Front-end bus selector: AXI_LITE, SPI, I2C, or LITEX_CSR}
+} {
+    set user_param [ipx::get_user_parameters $param_name -of_objects $core]
+    if {$user_param ne ""} {
+        catch {set_property display_name $display_name $user_param}
+        catch {set_property description $description $user_param}
+    }
+}
+
 ipx::check_integrity $core
 ipx::save_core $core
+if {[file exists $automation_tcl_file]} {
+    file mkdir [file join $ip_root_dir tcl]
+    file copy -force $automation_tcl_file [file join $ip_root_dir tcl rad_debug_hub_bd.tcl]
+}
 set_property ip_repo_paths $radila_ip_repo_dir [current_project]
 update_ip_catalog
 puts "Packaged user.org:user:radila:1.0"

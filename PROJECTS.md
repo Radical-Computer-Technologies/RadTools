@@ -89,6 +89,18 @@ FPGA-MPSoC projects add PetaLinux scaffolding:
 The generated `projects.petalinux` block includes BSP, XSA, deploy, and
 fingerprint fields used by `build_petalinux`.
 
+`projects.petalinux.version_file` stores the last packaged BSP version relative
+to the `petalinux/` folder. `build_petalinux --minor` increments the minor
+number and `build_petalinux --major` increments the major number before
+packaging a BSP into `petalinux/bsp_release/`. If a project already contains a
+checked-in BSP such as `neuma-3eg_v1.0.bsp`, set the version file to `1.0`
+before running `build_petalinux --minor`; the next BSP will be `v1.1`.
+
+Use `build_petalinux --minor --small-bsp` when the BSP should carry source and
+configuration only. This mode skips PetaLinux pre-built generation and invokes
+`petalinux-package --bsp --exclude-from-file` to omit `pre-built`, generated
+images, build workspaces, downloads, and sstate caches.
+
 ## Scripted FPGA Project Creation
 
 ```sh

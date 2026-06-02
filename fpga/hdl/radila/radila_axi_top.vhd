@@ -8,9 +8,12 @@ entity radila_v1_0 is
     C_S00_AXI_ADDR_WIDTH : integer := 6;
     SAMPLE_WIDTH         : integer := 32;
     EVENT_WIDTH          : integer := 8;
+    DEPTH                : integer := 1024;
+    ADDR_WIDTH           : integer := 10;
     CMD_LANES            : integer := 4;
     VENDOR_TAG           : string  := "XILINX";
-    PRODUCT_SERIES_TAG   : string  := "7SERIES"
+    PRODUCT_SERIES_TAG   : string  := "7SERIES";
+    G_DEBUG_BUS          : string  := "AXI_LITE"
   );
   port (
     sample_i       : in  std_logic_vector(SAMPLE_WIDTH - 1 downto 0);
@@ -48,9 +51,12 @@ begin
       C_S_AXI_ADDR_WIDTH => C_S00_AXI_ADDR_WIDTH,
       SAMPLE_WIDTH       => SAMPLE_WIDTH,
       EVENT_WIDTH        => EVENT_WIDTH,
+      DEPTH              => DEPTH,
+      ADDR_WIDTH         => ADDR_WIDTH,
       CMD_LANES          => CMD_LANES,
       VENDOR_TAG         => VENDOR_TAG,
-      PRODUCT_SERIES_TAG => PRODUCT_SERIES_TAG
+      PRODUCT_SERIES_TAG => PRODUCT_SERIES_TAG,
+      G_DEBUG_BUS        => G_DEBUG_BUS
     )
     port map (
       sample_clk     => s00_axi_aclk,

@@ -4,9 +4,8 @@ RadTools is the release repository for RadBuild, RadFPGA Debug Hub, reusable
 FPGA debug HDL, and PetaLinux support layers.
 
 This repository is intentionally biased toward installable artifacts and
-release collateral. Desktop application source belongs in a separate tool
-source repository. HDL and PetaLinux layer sources may live here because they
-are directly consumed by FPGA and PetaLinux builds.
+release collateral. RadILA/RadDebugHub HDL, bridge source, and desktop source
+are owned by the `RadHDL` submodule; RadTools packages compiled installers.
 
 ## Current Release
 
@@ -36,7 +35,7 @@ installers/
   linux-x86_64/                RadTools Crimson Linux installer and payloads
 fpga/
   petalinux/2023.2/            PetaLinux 2023.2 meta-radbuild template layer
-RadHDL/                        Reusable HDL submodule, including RadILA/RadDebugHub
+RadHDL/                        Source submodule for RadILA/RadDebugHub and RadDSP
 raddebug/                      RadFPGA Debug Hub release notes and packaging docs
 INSTALL.md                     Installation guide
 PROJECTS.md                    RadBuild project creation guide
@@ -125,4 +124,10 @@ For the current Linux x86_64 RadFPGA Debug Hub payload on Ubuntu 22.04:
 ```sh
 sudo apt-get update
 sudo apt-get install -y libqt5widgets5 libqt5network5 libqt5serialport5
+```
+
+RadFPGA Debug Hub source lives in:
+
+```text
+RadHDL/debug/radila/software/pc-host/source/radfpga-debug-hub/
 ```

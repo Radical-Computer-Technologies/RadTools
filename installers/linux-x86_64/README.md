@@ -54,6 +54,10 @@ Optional components:
 - `radbuild-server.service`
 - RadFPGA Debug Hub
 
+RadFPGA Debug Hub is an installable release payload. The corresponding
+RadILA/RadDebugHub source lives in `../../RadHDL/debug/radila/` from the
+repository root.
+
 The top-level installer is versioned as:
 
 ```text

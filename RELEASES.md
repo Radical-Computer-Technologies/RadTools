@@ -15,7 +15,7 @@ Included payloads:
 - RadBuild v1.0.0 command tools
 - RadBuild client/server/worker executables
 - RadFPGA Debug Hub Linux payload
-- RadHDL submodule with RadILA/RadDebugHub HDL
+- RadHDL submodule with RadILA/RadDebugHub HDL, bridge source, and host-tool source
 - PetaLinux 2023.2 `meta-radbuild` template layer
 
 ## Packaging Policy
@@ -28,6 +28,10 @@ installers/linux-x86_64/radfpga-debug-hub/v0.1.0/
 fpga/
 raddebug/
 ```
+
+Do not duplicate RadILA/RadDebugHub source in RadTools. Source belongs under
+`RadHDL/debug/radila/`; RadTools only tracks compiled release payloads and
+installer metadata.
 
 Do not track generated release archives such as:
 

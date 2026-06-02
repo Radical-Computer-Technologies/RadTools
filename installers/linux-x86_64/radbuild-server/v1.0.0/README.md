@@ -133,6 +133,28 @@ build_vivado --list
 build_petalinux --dry-run
 ```
 
+Package a versioned BSP release:
+
+```sh
+build_petalinux --minor
+build_petalinux --major
+```
+
+Package a smaller source/config BSP without generated pre-built images:
+
+```sh
+build_petalinux --minor --small-bsp
+build_petalinux --minor --no-prebuilt
+```
+
+These commands update the configured PetaLinux `version_file` and write the BSP
+under `petalinux/bsp_release/`. Keep the version file aligned with the latest
+checked-in BSP; `1.0` plus `--minor` creates `v1.1`.
+
+The small BSP mode skips `petalinux-package --prebuilt` and uses PetaLinux
+`--exclude-from-file` during BSP packaging to omit `pre-built`, generated
+images, build workspaces, downloads, and sstate caches.
+
 Directly call this release if you need to bypass wrapper selection:
 
 ```sh

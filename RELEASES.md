@@ -15,7 +15,7 @@ Included payloads:
 - RadBuild v1.0.0 command tools
 - RadBuild client/server/worker executables
 - RadFPGA Debug Hub Linux payload
-- RadILA/RadDebugHub HDL
+- RadHDL submodule with RadILA/RadDebugHub HDL
 - PetaLinux 2023.2 `meta-radbuild` template layer
 
 ## Packaging Policy

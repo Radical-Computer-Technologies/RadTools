@@ -194,6 +194,29 @@ Build/package:
 build_petalinux
 ```
 
+Package a BSP release:
+
+```bash
+build_petalinux --minor
+build_petalinux --major
+```
+
+Package a smaller source/config BSP without generated pre-built images:
+
+```bash
+build_petalinux --minor --small-bsp
+build_petalinux --minor --no-prebuilt
+```
+
+`--minor` and `--major` update the configured PetaLinux `version_file` and
+write the new BSP under `petalinux/bsp_release/`. Keep `version_file` aligned
+with the latest checked-in BSP before packaging; for example, set it to `1.0`
+before using `--minor` to create `<project>_v1.1.bsp`.
+
+`--small-bsp` and `--no-prebuilt` skip `petalinux-package --prebuilt` and use
+PetaLinux `--exclude-from-file` during BSP packaging to omit `pre-built`,
+generated images, build workspaces, downloads, and sstate caches.
+
 Build one PetaLinux component:
 
 ```bash

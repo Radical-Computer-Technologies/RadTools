@@ -35,8 +35,8 @@ server, systemd service, and RadFPGA Debug Hub are selectable components.
 installers/
   linux-x86_64/                RadTools Crimson Linux installer and payloads
 fpga/
-  hdl/radila/                  RadILA and RadDebugHub HDL
   petalinux/2023.2/            PetaLinux 2023.2 meta-radbuild template layer
+RadHDL/                        Reusable HDL submodule, including RadILA/RadDebugHub
 raddebug/                      RadFPGA Debug Hub release notes and packaging docs
 INSTALL.md                     Installation guide
 PROJECTS.md                    RadBuild project creation guide
@@ -91,6 +91,29 @@ Run a PetaLinux flow from a project directory:
 build_petalinux --dry-run
 build_petalinux
 ```
+
+Package a new BSP release from the PetaLinux project:
+
+```sh
+build_petalinux --minor
+build_petalinux --major
+```
+
+Package a smaller source/config BSP without generated pre-built images:
+
+```sh
+build_petalinux --minor --small-bsp
+build_petalinux --minor --no-prebuilt
+```
+
+`--minor` and `--major` update the project's configured PetaLinux
+`version_file` before writing a BSP into `petalinux/bsp_release/`. Keep that
+file aligned with the latest checked-in BSP version; for example, set it to
+`1.0` before using `--minor` to create `neuma-3eg_v1.1.bsp`.
+
+`--small-bsp` uses PetaLinux BSP packaging with `--exclude-from-file` and skips
+`petalinux-package --prebuilt`, keeping `pre-built`, generated images, build
+workspaces, downloads, and sstate caches out of the BSP.
 
 See [INSTALL.md](INSTALL.md), [PROJECTS.md](PROJECTS.md), and
 [RELEASES.md](RELEASES.md) for detailed usage.

@@ -35,8 +35,8 @@ server, systemd service, and RadFPGA Debug Hub are selectable components.
 installers/
   linux-x86_64/                RadTools Crimson Linux installer and payloads
 fpga/
-  hdl/radila/                  RadILA and RadDebugHub HDL
   petalinux/2023.2/            PetaLinux 2023.2 meta-radbuild template layer
+RadHDL/                        Reusable HDL submodule, including RadILA/RadDebugHub
 raddebug/                      RadFPGA Debug Hub release notes and packaging docs
 INSTALL.md                     Installation guide
 PROJECTS.md                    RadBuild project creation guide

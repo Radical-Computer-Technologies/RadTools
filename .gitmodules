@@ -1,0 +1,3 @@
+[submodule "RadHDL"]
+	path = RadHDL
+	url = https://github.com/Radical-Computer-Technologies/RadHDL.git

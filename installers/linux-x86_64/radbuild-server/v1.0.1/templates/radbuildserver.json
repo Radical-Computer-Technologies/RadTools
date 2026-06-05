@@ -1,0 +1,23 @@
+{
+  "auto_radsetup": true,
+  "notifications": {
+    "discord_bot": {
+      "bot_token": "",
+      "channel_id": "",
+      "channel_name": "",
+      "enabled": false,
+      "guild_id": ""
+    },
+    "discord_webhook_url": "",
+    "heartbeat_interval_seconds": 300,
+    "slack_webhook_url": ""
+  },
+  "poll_interval_seconds": 60,
+  "projects": [],
+  "radbuild_dir": "/mnt/data_ssd/projects/neuma/Codex_HDL/neuma_ad9363_myir3eg/radbuild-release1v01",
+  "review_db_cli": "/mnt/data_ssd/projects/neuma/Codex_HDL/neuma_ad9363_myir3eg/radbuild-release1v01/raddb",
+  "schema": "radbuildserver-v1",
+  "state_file": "/mnt/data_ssd/projects/neuma/Codex_HDL/neuma_ad9363_myir3eg/radbuild-release1v01/radserver_data/radbuildserver.state.json",
+  "use_radbuild_shell": true,
+  "workspace_dir": ""
+}

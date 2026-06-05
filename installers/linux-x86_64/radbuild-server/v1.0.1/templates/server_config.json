@@ -1,0 +1,23 @@
+{
+  "api_token": "",
+  "auth_must_change_password": true,
+  "auth_password_hash": "",
+  "auth_password_salt": "",
+  "auth_username": "admin",
+  "build_server_url": "local",
+  "build_servers": [
+    {
+      "enabled": true,
+      "name": "local",
+      "notes": "Default local build server",
+      "role": "local-build",
+      "url": "local"
+    }
+  ],
+  "cleanup_interval_minutes": 60,
+  "configured": false,
+  "lan_base_url": "",
+  "log_retention_hours": 168,
+  "log_temp_dir": "/mnt/data_ssd/projects/neuma/Codex_HDL/neuma_ad9363_myir3eg/radbuild-release1v01/radserver_data/uploaded_logs",
+  "ui_theme": "dark"
+}

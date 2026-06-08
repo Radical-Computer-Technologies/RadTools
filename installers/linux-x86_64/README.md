@@ -1,6 +1,7 @@
-# RadTools v1.0.0 - Crimson Linux Installer
+# RadTools v1.0.1 - Crimson Linux Installer
 
 Use `install.py` as the main Linux installer for RadTools Crimson. `install.sh` is a thin compatibility wrapper around it.
+Use `install_client.sh` for a client-only install that also installs the required RadBuild tools.
 
 ```sh
 sudo ./install.py
@@ -12,7 +13,7 @@ The manifest also lists supported platforms for each component. The installer de
 
 When run interactively, the installer uses a curses terminal menu by default when the SSH/session terminal supports it. It falls back to a plain numbered text menu if curses is unavailable. It presents:
 
-- RadTools version: `v1.0.0 - Crimson`
+- RadTools version: `v1.0.1 - Crimson`
 - install payload root
 - command wrapper directory
 - optional components
@@ -29,6 +30,7 @@ RadBuild tools are always installed:
 - `radbuild`
 - `build_vivado`
 - `build_petalinux`
+- `build_litex`
 - `radsetup`
 
 The installer can also link local FPGA toolchains. It searches common Vivado
@@ -36,7 +38,7 @@ and PetaLinux locations under `/opt`, `/tools`, and the invoking user's home
 directory. Linked tools are written to:
 
 ```text
-<install-root>/RadBuild/v1.0.0/.radmeta/toolchains.json
+<install-root>/RadBuild/v1.0.1/.radmeta/toolchains.json
 ```
 
 Scripted toolchain links use:
@@ -61,7 +63,7 @@ repository root.
 The top-level installer is versioned as:
 
 ```text
-RadTools v1.0.0 - Crimson
+RadTools v1.0.1 - Crimson
 ```
 
 ## Layout
@@ -69,12 +71,35 @@ RadTools v1.0.0 - Crimson
 The default system layout keeps payload binaries outside `/usr/bin`:
 
 ```text
-/opt/radtools/RadBuild/v1.0.0/bin/              RadBuild payload binaries
+/opt/radtools/RadBuild/v1.0.1/bin/              RadBuild payload binaries
 /opt/radtools/RadFPGA-Debug-Hub/v0.1.0/bin/    RadFPGA Debug Hub payload binaries
 /usr/bin/<command>                              Thin command wrappers only
 ```
 
 The wrappers dispatch RadBuild commands to the version requested by the nearest `settings.json`.
+
+## Dependencies
+
+The installer reads component dependency lists from `installer_manifest.json`.
+Supported package managers are `apt`, `dnf`, `yum`, `zypper`, and `pacman`.
+
+On a system install, run through `sudo` so missing packages can be installed:
+
+```sh
+sudo ./install_client.sh --non-interactive --install-dependencies
+```
+
+For a temporary current-user install, skip OS package installation only when the host already has the required packages:
+
+```sh
+./install_client.sh \
+  --install-root "$HOME/.local/opt/radtools" \
+  --bindir "$HOME/.local/bin" \
+  --non-interactive \
+  --no-install-dependencies
+```
+
+Client dependencies include Python 3, bash, Git, rsync, OpenSSH client tools, CA certificates, and tar.
 
 See also:
 
@@ -100,6 +125,12 @@ Tools and client:
 
 ```sh
 sudo ./install.py install --component radbuild-client --non-interactive
+```
+
+Client convenience wrapper:
+
+```sh
+sudo ./install_client.sh --non-interactive --install-dependencies
 ```
 
 Everything:

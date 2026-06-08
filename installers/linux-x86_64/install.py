@@ -529,6 +529,114 @@ def close_requires(selected: set[str], comps: dict[str, dict]) -> set[str]:
     return selected
 
 
+def os_release() -> dict[str, str]:
+    release: dict[str, str] = {}
+    path = Path("/etc/os-release")
+    if not path.exists():
+        return release
+    for raw_line in path.read_text(encoding="utf-8", errors="ignore").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        release[key] = value.strip().strip('"')
+    return release
+
+
+def dependency_keys(release: dict[str, str]) -> list[str]:
+    keys: list[str] = []
+    distro_id = release.get("ID", "").lower()
+    if distro_id:
+        keys.append(distro_id)
+    keys.extend(item.lower() for item in release.get("ID_LIKE", "").split())
+    keys.append("linux")
+    out: list[str] = []
+    for key in keys:
+        if key and key not in out:
+            out.append(key)
+    return out
+
+
+def package_manager() -> tuple[str, list[str], list[str] | None] | None:
+    candidates = [
+        ("apt", ["apt-get", "install", "-y"], ["apt-get", "update"]),
+        ("dnf", ["dnf", "install", "-y"], None),
+        ("yum", ["yum", "install", "-y"], None),
+        ("zypper", ["zypper", "--non-interactive", "install"], None),
+        ("pacman", ["pacman", "-Sy", "--needed", "--noconfirm"], None),
+    ]
+    for name, install_cmd, update_cmd in candidates:
+        if shutil.which(install_cmd[0]):
+            return name, install_cmd, update_cmd
+    return None
+
+
+def package_installed(package: str, manager: str) -> bool:
+    checks = {
+        "apt": ["dpkg-query", "-W", "-f=${Status}", package],
+        "dnf": ["rpm", "-q", package],
+        "yum": ["rpm", "-q", package],
+        "zypper": ["rpm", "-q", package],
+        "pacman": ["pacman", "-Q", package],
+    }
+    cmd = checks.get(manager)
+    if cmd is None or shutil.which(cmd[0]) is None:
+        return False
+    result = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    return result.returncode == 0
+
+
+def dependencies_for_components(selected: set[str], comps: dict[str, dict]) -> list[str]:
+    release = os_release()
+    keys = dependency_keys(release)
+    packages: list[str] = []
+    for comp_id in sorted(selected):
+        deps = comps[comp_id].get("dependencies", {})
+        for key in keys:
+            for package in deps.get(key, []):
+                if package not in packages:
+                    packages.append(package)
+    return packages
+
+
+def install_dependencies(args: argparse.Namespace, selected: set[str], comps: dict[str, dict]) -> list[str]:
+    packages = dependencies_for_components(selected, comps)
+    if not packages:
+        return []
+
+    manager = package_manager()
+    if manager is None:
+        if args.install_dependencies:
+            raise SystemExit(f"no supported Linux package manager found for dependencies: {', '.join(packages)}")
+        print(f"Skipping dependency check; no supported package manager found. Needed packages: {', '.join(packages)}")
+        return packages
+
+    manager_name, install_cmd, update_cmd = manager
+    missing = [package for package in packages if not package_installed(package, manager_name)]
+    if not missing:
+        print(f"Dependencies already installed: {', '.join(packages)}")
+        return packages
+
+    if args.no_install_dependencies:
+        raise SystemExit(
+            "missing required packages and --no-install-dependencies was requested: "
+            + ", ".join(missing)
+        )
+
+    if not args.install_dependencies and os.geteuid() != 0:
+        raise SystemExit(
+            "missing required packages: "
+            + ", ".join(missing)
+            + "\nRe-run with sudo, or install them manually, or pass --no-install-dependencies only for a temporary test install."
+        )
+
+    print(f"Installing dependencies with {manager_name}: {', '.join(missing)}")
+    if update_cmd is not None and not args.no_dependency_update:
+        subprocess.run(update_cmd, check=True)
+    subprocess.run([*install_cmd, *missing], check=True)
+    return packages
+
+
 def render_template(text: str, values: dict[str, str]) -> str:
     for key, value in values.items():
         text = text.replace(key, value)
@@ -722,6 +830,7 @@ def install(args: argparse.Namespace) -> None:
             install_root, bindir, selected, selected_toolchains = prompt_text_install_options(manifest, selected, install_root, bindir)
 
     selected = close_requires(selected, comps)
+    install_dependencies(args, selected, comps)
     paths = {
         "install_root": install_root,
         "bindir": bindir,
@@ -762,10 +871,9 @@ def uninstall(args: argparse.Namespace) -> None:
     install_root = Path(args.install_root or manifest["defaults"]["install_root"])
     bindir = Path(args.bindir or manifest["defaults"]["bindir"])
     radbuild_root = Path(args.radbuild_root) if args.radbuild_root else install_root / "RadBuild"
-    radbuild_prefix = radbuild_root / "v1.0.0"
     radfpga_prefix = Path(args.radfpga_prefix) if args.radfpga_prefix else install_root / "RadFPGA-Debug-Hub" / "v0.1.0"
 
-    selected = set(args.component or comps)
+    selected = close_requires(set(args.component or comps), comps)
     if "radbuild-service" in selected:
         service = comps["radbuild-service"]["service"]
         unit_name = args.service_name or service.get("name", "radbuild-server")
@@ -780,23 +888,29 @@ def uninstall(args: argparse.Namespace) -> None:
                 subprocess.run(["systemctl", "daemon-reload"], check=False)
 
     radbuild_commands = []
+    radbuild_versions = set()
     for comp_id in ["radbuild-tools", "radbuild-client", "radbuild-server"]:
         if comp_id in selected:
             radbuild_commands.extend(comps[comp_id].get("commands", []))
+            radbuild_versions.add(comps[comp_id]["version"])
     for command in radbuild_commands:
-        for path in [bindir / command, bindir / f"{command}-v1.0.0"]:
+        paths = [bindir / command]
+        paths.extend(bindir / f"{command}-{version}" for version in sorted(radbuild_versions))
+        for path in paths:
             path.unlink(missing_ok=True)
 
     if any(comp_id in selected for comp_id in ["radbuild-tools", "radbuild-client", "radbuild-server"]):
-        if args.remove_data:
-            shutil.rmtree(radbuild_prefix, ignore_errors=True)
-        elif radbuild_prefix.exists():
-            for item in radbuild_prefix.iterdir():
-                if item.name != "radserver_data":
-                    if item.is_dir():
-                        shutil.rmtree(item)
-                    else:
-                        item.unlink()
+        for version in sorted(radbuild_versions):
+            radbuild_prefix = radbuild_root / version
+            if args.remove_data:
+                shutil.rmtree(radbuild_prefix, ignore_errors=True)
+            elif radbuild_prefix.exists():
+                for item in radbuild_prefix.iterdir():
+                    if item.name != "radserver_data":
+                        if item.is_dir():
+                            shutil.rmtree(item)
+                        else:
+                            item.unlink()
 
     if "radfpga-debug-hub" in selected:
         for command in comps["radfpga-debug-hub"].get("commands", []):
@@ -833,6 +947,9 @@ def parse_args() -> argparse.Namespace:
     install_cmd.add_argument("--all", action="store_true")
     install_cmd.add_argument("--non-interactive", action="store_true")
     install_cmd.add_argument("--ui", choices=["auto", "curses", "whiptail", "text"], default="auto")
+    install_cmd.add_argument("--install-dependencies", action="store_true", help="Install missing OS packages for selected components with the host package manager.")
+    install_cmd.add_argument("--no-install-dependencies", action="store_true", help="Do not install OS packages; fail if selected component dependencies are missing.")
+    install_cmd.add_argument("--no-dependency-update", action="store_true", help="Skip package-manager update steps such as apt-get update.")
     install_cmd.add_argument("--service-user", default="")
     install_cmd.add_argument("--service-host", default="")
     install_cmd.add_argument("--service-port", default="")

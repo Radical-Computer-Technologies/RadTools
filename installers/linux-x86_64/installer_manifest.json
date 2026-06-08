@@ -8,6 +8,53 @@
         "build_litex",
         "radsetup"
       ],
+      "dependencies": {
+        "arch": [
+          "bash",
+          "ca-certificates",
+          "git",
+          "openssh",
+          "python",
+          "rsync",
+          "tar"
+        ],
+        "debian": [
+          "bash",
+          "ca-certificates",
+          "git",
+          "openssh-client",
+          "python3",
+          "rsync",
+          "tar"
+        ],
+        "fedora": [
+          "bash",
+          "ca-certificates",
+          "git",
+          "openssh-clients",
+          "python3",
+          "rsync",
+          "tar"
+        ],
+        "rhel": [
+          "bash",
+          "ca-certificates",
+          "git",
+          "openssh-clients",
+          "python3",
+          "rsync",
+          "tar"
+        ],
+        "ubuntu": [
+          "bash",
+          "ca-certificates",
+          "git",
+          "openssh-client",
+          "python3",
+          "rsync",
+          "tar"
+        ]
+      },
       "docs": "radbuild-server/v1.0.1/docs",
       "id": "radbuild-tools",
       "name": "RadBuild Tools",
@@ -25,6 +72,33 @@
         "radclient"
       ],
       "default": false,
+      "dependencies": {
+        "arch": [
+          "bash",
+          "ca-certificates",
+          "python"
+        ],
+        "debian": [
+          "bash",
+          "ca-certificates",
+          "python3"
+        ],
+        "fedora": [
+          "bash",
+          "ca-certificates",
+          "python3"
+        ],
+        "rhel": [
+          "bash",
+          "ca-certificates",
+          "python3"
+        ],
+        "ubuntu": [
+          "bash",
+          "ca-certificates",
+          "python3"
+        ]
+      },
       "id": "radbuild-client",
       "name": "RadBuild Client",
       "payload": "radbuild-server/v1.0.1/payload",
@@ -60,6 +134,28 @@
         }
       ],
       "default": false,
+      "dependencies": {
+        "arch": [
+          "bash",
+          "python"
+        ],
+        "debian": [
+          "bash",
+          "python3"
+        ],
+        "fedora": [
+          "bash",
+          "python3"
+        ],
+        "rhel": [
+          "bash",
+          "python3"
+        ],
+        "ubuntu": [
+          "bash",
+          "python3"
+        ]
+      },
       "id": "radbuild-server",
       "name": "RadBuild Server and Workers",
       "payload": "radbuild-server/v1.0.1/payload",
@@ -78,6 +174,23 @@
     },
     {
       "default": false,
+      "dependencies": {
+        "arch": [
+          "systemd"
+        ],
+        "debian": [
+          "systemd"
+        ],
+        "fedora": [
+          "systemd"
+        ],
+        "rhel": [
+          "systemd"
+        ],
+        "ubuntu": [
+          "systemd"
+        ]
+      },
       "id": "radbuild-service",
       "name": "RadBuild Server systemd Service",
       "platforms": [
@@ -101,6 +214,11 @@
       ],
       "default": false,
       "dependencies": {
+        "debian": [
+          "libqt5widgets5",
+          "libqt5network5",
+          "libqt5serialport5"
+        ],
         "ubuntu": [
           "libqt5widgets5",
           "libqt5network5",
